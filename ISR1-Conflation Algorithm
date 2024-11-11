@@ -1,0 +1,100 @@
+#Assigement 1: Conflation Algorithm
+
+#code
+
+#include<bits/stdc++.h>
+
+using namespace std;
+
+// Function to preprocess a single document
+vector<string> preprocessText(const string& text) {
+    vector<string> words;
+    istringstream iss(text);
+    string word;
+    
+    while (iss >> word) {
+        // Convert word to lowercase
+        transform(word.begin(), word.end(), word.begin(), ::tolower);
+        
+        // Remove non-alphanumeric characters
+        word.erase(remove_if(word.begin(), word.end(), [](char c) { return !isalnum(c); }), word.end());
+        
+        // Store the word if it's not empty after preprocessing
+        if (!word.empty()) {
+            words.push_back(word);
+        }
+    }
+    
+    return words;
+}
+
+// Function to conflate documents and generate representative document
+vector<string> conflateDocuments(const vector<string>& documents) {
+    unordered_map<string, int> termFrequency;
+    
+    // Process each document
+    for (const auto& doc : documents) {
+        // Preprocess the document
+        vector<string> words = preprocessText(doc);
+        
+        // Update term frequencies
+        for (const auto& word : words) {
+            termFrequency[word]++;
+        }
+    }
+    
+    // Sort terms by frequency (descending order)
+    vector<pair<string, int>> sortedTerms(termFrequency.begin(), termFrequency.end());
+    sort(sortedTerms.begin(), sortedTerms.end(), [](const pair<string, int>& a, const pair<string, int>& b) {
+        return a.second > b.second;  // Sort by frequency descending
+    });
+    
+    // Select the top 20 terms as representative document
+    vector<string> representativeDoc;
+    int numTermsToSelect = min(20, static_cast<int>(sortedTerms.size()));
+    for (int i = 0; i < numTermsToSelect; ++i) {
+        representativeDoc.push_back(sortedTerms[i].first);
+    }
+    
+    return representativeDoc;
+}
+
+int main() {
+    vector<string> documents;
+    
+    // Read documents from a text file
+    ifstream inputFile("input.txt");
+    if (!inputFile.is_open()) {
+        cerr << "Failed to open input file." << endl;
+        return 1;
+    }
+    
+    string line;
+    while (getline(inputFile, line)) {
+        documents.push_back(line);
+    }
+    inputFile.close();
+    
+    // Generate representative document
+    vector<string> representativeDoc = conflateDocuments(documents);
+    
+    // Print the representative document
+    cout << "Representative Document:" << endl;
+    for (const auto& term : representativeDoc) {
+        cout << term << endl;
+    }
+    
+    return 0;
+}
+
+
+OUTPUT:
+
+shruti@shruti-virtual-machine:~/isr$ g++ reference.cpp
+shruti@shruti-virtual-machine:~/isr$ ./a.out
+Representative Document:
+waiting
+annoying
+enjoying
+happily
+roaming
